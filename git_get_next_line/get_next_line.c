@@ -6,50 +6,57 @@
 /*   By: lkrabbe < lkrabbe@student.42heilbronn.d    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 06:21:25 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/05 16:16:55 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/06 10:07:07 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include    "get_next_line.h"
 #include    <stdio.h> //del later
 
-char	*quickcopy(char *buffer,size_t n)
+int	reactiv_realloc(char *dst,char *remainder, char *buffer)
 {
-	char	*str;
-	size_t	pos;
+	int		i;
+	char	*tmp;
+	int		len;//will be a struct
+	int		k;
 
-	pos = 0;
-	str = malloc(sizeof(char)*(n+1));
-	if (str == NULL)
-		return (NULL);
-	else
-	{
-		while (n > pos)
-		{
-			str[pos] = buffer[pos];
-			pos++;
-		}
-	}
-	return (str);
+	i = 0;
+	len = 0;
+	k = 0;
+	while (buffer[i] != '\0' || buffer[i] != '\n')// maybe i need to  see if i == BUFFERSIZE
+		i++;
+	while (dst[len] != '\0' || dst[len] != '\n' || dst == NULL)
+		len++;
+	tmp = malloc(size_of(char) * (len + i));
+	if (tmp == NULL)
+		return (1);
+	tmp[len + i + 1 ] = '\0'
+	while (i >= 0)
+		tmp[len + i] = buffer[i--];// doesnt work like that
+	while (i + k <= BUFFERSIZE)
+		remainder[k] = buffer[i + k++];
+	while (len >= 0)
+		tmp[len] = dst[len--];
+	if (dst == NULL)
+	free(dst);
+	dst = tmp;
+	if (k > 0)
+		return(1);
+	return (0);
 }
 
 char    *get_next_line(int fd)
 {
-	char			buffer[BUFFERSIZE + 1];
-	size_t			i;
-	static size_t	counter = 0;
+	char			buffer[BUFFERSIZE];
 	char			*str;
-	int				tmp;
-	i = 0;
-	if(i <= counter)
+	static char 	remainder[BUFFERSIZE];
+
+	if(reactiv_realloc(str,remainder,remainder))
+		return (str);
+	while(read(fd,(buffer),BUFFERSIZE))
 	{
-		tmp = read(fd,(buffer),BUFFERSIZE);
-		i += tmp;
-		printf("\ntmp == %i || i == %zu || counter == %i",tmp,i,counter);
-		if (tmp <= 0)
-			return (quickcopy("Error",6));
+		if(reactiv_realloc(str,remainder,buffer))
+			return (str);
 	}
-	counter = i;;
-	str = quickcopy(buffer,tmp);
-	return (str);
+	return (NULL);
 }
