@@ -4,6 +4,10 @@
 #include    <fcntl.h>
 #include    "../git_get_next_line/get_next_line.h"
 
+// #ifndef FILENAME
+// # define FILENAME "100words.txt"
+// #endif
+
 int main()
 {
 	int		fd;
@@ -11,7 +15,7 @@ int main()
 	int		i;
 
 	i = 0;
-	fd = open("100words.txt",O_RDONLY);
+	fd = open("big_line_no_nl",O_RDONLY);
 	printf("fd == %i\n",fd);
 	while(str != NULL)
 	{

@@ -13,6 +13,9 @@ all:hun
 hun:
 		@cc get_next_line_main.c $(SRC) -D BUFFERSIZE=10 -D TEST="100words.txt"
 		@./a.out
+big:
+		@cc get_next_line_main.c $(SRC) -D BUFFERSIZE=10 -D FILENAME="big_line_no_nl"
+		@./a.out
 clean:
 		rm a.out
 
