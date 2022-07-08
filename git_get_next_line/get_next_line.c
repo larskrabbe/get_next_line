@@ -3,60 +3,99 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lkrabbe < lkrabbe@student.42heilbronn.d    +#+  +:+       +#+        */
+/*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/05 06:21:25 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/06 10:07:07 by lkrabbe          ###   ########.fr       */
+/*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
+/*   Updated: 2022/07/07 19:37:55 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include    "get_next_line.h"
-#include    <stdio.h> //del later
+#include	"get_next_line.h"
+#include	<stdio.h> //del later
 
-int	reactiv_realloc(char *dst,char *remainder, char *buffer)
+#define BREAK '\n' // maybe keep it
+
+int	lookfor(char *buffer)
 {
-	int		i;
-	char	*tmp;
-	int		len;//will be a struct
-	int		k;
+	int	i;
 
 	i = 0;
-	len = 0;
-	k = 0;
-	while (buffer[i] != '\0' || buffer[i] != '\n')// maybe i need to  see if i == BUFFERSIZE
+	while (buffer[i] != BREAK && buffer[i] != '\0' && i < BUFFERSIZE)
 		i++;
-	while (dst[len] != '\0' || dst[len] != '\n' || dst == NULL)
-		len++;
-	tmp = malloc(size_of(char) * (len + i));
-	if (tmp == NULL)
-		return (1);
-	tmp[len + i + 1 ] = '\0'
-	while (i >= 0)
-		tmp[len + i] = buffer[i--];// doesnt work like that
-	while (i + k <= BUFFERSIZE)
-		remainder[k] = buffer[i + k++];
-	while (len >= 0)
-		tmp[len] = dst[len--];
-	if (dst == NULL)
-	free(dst);
-	dst = tmp;
-	if (k > 0)
-		return(1);
-	return (0);
+	return (i);
 }
 
-char    *get_next_line(int fd)
-{
-	char			buffer[BUFFERSIZE];
-	char			*str;
-	static char 	remainder[BUFFERSIZE];
 
-	if(reactiv_realloc(str,remainder,remainder))
-		return (str);
-	while(read(fd,(buffer),BUFFERSIZE))
+int	my_str_len(char *str)
+{
+	int i;
+	if (str == NULL)
+		return(0);
+	i = 0;
+	while (str[i] != '\0' )
+		i++;
+	return (i);
+}
+
+char *copy(char *ptr, char *buffer, char *sta_buf, int n, int len_buf)
+{
+	int	i;
+	int k;
+	char *dst;
+	int j;
+
+	i = 0;
+	k = 0;
+	j = 0;
+	dst = malloc(4 * (n + my_str_len(ptr)));
+	if (dst == NULL)
+		return (NULL);
+	while (j < my_str_len(ptr) && ptr != NULL)
 	{
-		if(reactiv_realloc(str,remainder,buffer))
-			return (str);
+		dst[j] = ptr[j];
+		j++;
 	}
-	return (NULL);
+	while (n + my_str_len(ptr) >= i + j)
+	{
+		dst[j+ i]= buffer[i];
+		i++;
+	}
+	dst[j + i + k] = '\0';
+	while (i + k < len_buf)
+	{
+		sta_buf[k] = buffer[k + i];
+		k++;
+	}
+	sta_buf[k] = '\0';
+	free(ptr);
+	return (dst);
+}
+
+char	*get_next_line(int fd)
+{
+	char		buffer[BUFFERSIZE];
+	char		*ptr;
+	int			i;
+	static char	sta_buf[BUFFERSIZE] = "";
+	int 		len_buf;
+	
+	ptr = NULL;
+		if (sta_buf[0] != '\0')
+		{
+			len_buf = my_str_len(sta_buf);
+			i = lookfor(sta_buf);
+			ptr = copy(ptr, sta_buf, sta_buf, i, len_buf);
+			if (i < len_buf)
+				return (ptr);
+		}
+		while (1)
+		{
+			len_buf = read(fd, buffer, BUFFERSIZE);
+			if ( len_buf <= 0)
+				return (ptr);
+			i = lookfor(buffer);
+			ptr = copy(&(*ptr), buffer, sta_buf, i, len_buf);
+			if (i < BUFFERSIZE || ptr == NULL)
+				return (ptr);
+		}
 }

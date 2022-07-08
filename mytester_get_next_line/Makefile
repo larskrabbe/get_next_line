@@ -1,7 +1,7 @@
 SRC =		../git_get_next_line/get_next_line.c\
 			../git_get_next_line/get_next_line_utils.c
 
-CFLAGS = 	-Werror -Wextra -Wall
+CFLAGS = -Werror -Wextra -Wall
 
 CC = 		cc
 
@@ -18,4 +18,6 @@ clean:
 
 re: clean all
 
+norm:
+	norminette $(SRC)
 .phony: re clean all 
