@@ -6,7 +6,7 @@
 /*   By: lkrabbe < lkrabbe@student.42heilbronn.d    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/08 16:29:09 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/11 11:50:52 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,94 +15,158 @@
 
 #define BREAK '\n' // maybe keep it
 
-int	lookfor(char *buffer)
+int	lookfor(int fd, char *buffer, char *tmp_buf)
 {
+	int	len;
 	int	i;
+	int pos;
 
+	pos = 0;
+	len = read(fd,buffer,BUFFERSIZE);
 	i = 0;
-	while (buffer[i] != BREAK && buffer[i + 1] != '\0' && i < BUFFERSIZE)
+	while (i < len && buffer[i] != '\n' &&  buffer[i] != '\0')
 		i++;
-	return (i);
-	printf("%i\n",i);
+	while (i + pos < len)
+	{
+		tmp_buf[pos] = buffer[i + pos];
+		pos++;
+	}
+	if (pos != 0)
+		tmp_buf[pos] = '\0';
+	return (len);
 }
 
 
-int	my_str_len(char *str)
+// int	my_str_len(char *str)
+// {
+// 	int i;
+// 	if (str == NULL)
+// 		return(0);
+// 	i = 0;
+// 	while (str[i] != '\0' )
+// 		i++;
+// 	return (i);
+// }
+
+
+// // recursive until new line or end of file, store the rest in static, just try to  malloc once , and use char buffer in stack
+// char *copy(char *ptr, char *buffer, char *sta_buf, int n, int len_buf)
+// {
+// 	int	i;
+// 	int k;
+// 	char *dst;
+// 	int j;
+
+// 	i = 0;
+// 	k = 0;
+// 	j = 0;
+// 	dst = malloc(4 * (n + my_str_len(ptr)));
+// 	if (dst == NULL)
+// 		return (NULL);
+// 	while (j < my_str_len(ptr) && ptr != NULL)
+// 	{
+// 		dst[j] = ptr[j];
+// 		j++;
+// 	}
+// 	//printf("\n%i",j);
+// 	while (n + my_str_len(ptr) > i + j)
+// 	{
+// 		dst[j+ i]= buffer[i];
+// 		i++;
+// 	}
+// 	dst[j + i + k ] = '\0';
+// 	while (i + k < len_buf)
+// 	{
+// 		sta_buf[k] = buffer[k + i];
+// 		k++;
+// 	}
+// 	sta_buf[k] = '\0';
+// 	//printf("\n%i%i|%i|%i",n,i,j,k);
+// 	free(ptr);
+// 	return (dst);
+// }
+
+
+
+char *rec_str_join(int fd,char *ptr,size_t size,char *tmp_buf)
 {
-	int i;
-	if (str == NULL)
-		return(0);
-	i = 0;
-	while (str[i] != '\0' )
-		i++;
-	return (i);
-}
+	char	buffer[BUFFERSIZE];
+	int		i;
 
-
-// recursive until new line or end of file, store the rest in static, just try to  malloc once , and use char buffer in stack
-char *copy(char *ptr, char *buffer, char *sta_buf, int n, int len_buf)
-{
-	int	i;
-	int k;
-	char *dst;
-	int j;
-
-	i = 0;
-	k = 0;
-	j = 0;
-	dst = malloc(4 * (n + my_str_len(ptr)));
-	if (dst == NULL)
+	i = lookfor(fd, buffer,tmp_buf);
+	if (i == BUFFERSIZE)
+	{	
+		ptr = rec_str_join(fd, ptr, size + i, &(*tmp_buf));
+		if (ptr == NULL)
+			return(NULL);
+	}
+	else if (i <= 0 && size == 0)
 		return (NULL);
-	while (j < my_str_len(ptr) && ptr != NULL)
+	else
 	{
-		dst[j] = ptr[j];
-		j++;
+		ptr = malloc (sizeof(char) * (size + 1 + i));
+		if (ptr == NULL)
+			return(NULL);
+		ptr[size  + i - 1] = '\0';
 	}
-	//printf("\n%i",j);
-	while (n + my_str_len(ptr) > i + j)
-	{
-		dst[j+ i]= buffer[i];
-		i++;
-	}
-	dst[j + i + k ] = '\0';
-	while (i + k < len_buf)
-	{
-		sta_buf[k] = buffer[k + i];
-		k++;
-	}
-	sta_buf[k] = '\0';
-	//printf("\n%i%i|%i|%i",n,i,j,k);
-	free(ptr);
-	return (dst);
+	while ( i-- >= 0)
+		ptr[size + i] = buffer[i];
+	return (ptr);
 }
 
 char	*get_next_line(int fd)
 {
-	char		buffer[BUFFERSIZE];
 	char		*ptr;
+	static char sta_buf[BUFFERSIZE] = "";
 	int			i;
-	static char	sta_buf[BUFFERSIZE] = "";
-	int 		len_buf;
-	
-	ptr = NULL;
-	//printf(">>%s\n",sta_buf);
-		if (sta_buf[0] != '\0')
-		{
-			len_buf = my_str_len(sta_buf);
-			i = lookfor(sta_buf);
-			ptr = copy(ptr, sta_buf, sta_buf, i, len_buf);
-			if (i < len_buf)
-				return (ptr);
-		}
-		while (1)
-		{
-			len_buf = read(fd, buffer, BUFFERSIZE);
-			if ( len_buf <= 0)
-				return (ptr);
-			i = lookfor(buffer);
-			ptr = copy(&(*ptr), buffer, sta_buf, i, len_buf);
-			
-			if (i < BUFFERSIZE || ptr == NULL)
-				return (ptr);
-		}
+	char		tmp_buf[BUFFERSIZE] = "";
+
+	i = 0;
+	while(sta_buf[i] != '\0' && sta_buf[i] != '\n')
+		i++;		
+	if (sta_buf[i] == '\n')
+	{
+		ptr = malloc(sizeof(char) * (i + 1));
+		if (ptr == NULL)
+			return (NULL);
+		while (i-- > 0)
+			ptr[i] = sta_buf[i];
+	}
+	ptr = rec_str_join(fd, ptr, i, &(*tmp_buf));
+	while ( i--  > 0)
+		ptr[i] = sta_buf[i];
+	while (tmp_buf[i++] != '\0')
+		sta_buf[i] = tmp_buf[i];
+	return(ptr);
 }
+
+// char	*get_next_line(int fd)
+// {
+// 	char		buffer[BUFFERSIZE];
+// 	char		*ptr;
+// 	int			i;
+// 	static char	sta_buf[BUFFERSIZE] = "";
+// 	int 		len_buf;
+	
+// 	ptr = NULL;
+// 	//printf(">>%s\n",sta_buf);
+// 		if (sta_buf[0] != '\0')
+// 		{
+// 			len_buf = my_str_len(sta_buf);
+// 			i = lookfor(sta_buf);
+// 			ptr = copy(ptr, sta_buf, sta_buf, i, len_buf);
+// 			if (i < len_buf)
+// 				return (ptr);
+// 		}
+// 		while (1)
+// 		{
+// 			len_buf = read(fd, buffer, BUFFERSIZE);
+// 			if ( len_buf <= 0)
+// 				return (ptr);
+// 			i = lookfor(buffer);
+// 			ptr = copy(&(*ptr), buffer, sta_buf, i, len_buf);
+			
+// 			if (i < BUFFERSIZE || ptr == NULL)
+// 				return (ptr);
+// 		}
+// }

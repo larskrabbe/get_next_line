@@ -17,7 +17,7 @@ int main()
 	i = 0;
 	fd = open("big_line_no_nl",O_RDONLY);
 	printf("fd == %i\n",fd);
-	while(str != NULL)
+	while(str != NULL && i < 5)
 	{
 		str = get_next_line(fd);
 		printf("%3i => %s\n",i,str);
