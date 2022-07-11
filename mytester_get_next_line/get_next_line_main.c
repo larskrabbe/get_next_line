@@ -5,7 +5,7 @@
 #include    "../git_get_next_line/get_next_line.h"
 
 // #ifndef FILENAME
-// # define FILENAME "100words.txt"
+// # define FILENAME "100words.txt" big_line_no_nl
 // #endif
 
 int main()
@@ -15,12 +15,12 @@ int main()
 	int		i;
 
 	i = 0;
-	fd = open("big_line_no_nl",O_RDONLY);
+	fd = open("100words.txt",O_RDONLY);
 	printf("fd == %i\n",fd);
-	while(str != NULL && i < 5)
+	while(str != NULL && i < 8)
 	{
 		str = get_next_line(fd);
-		printf("%3i => %s\n",i,str);
+		printf("%s",str);
 		i++;
 		free(str);
 	}
