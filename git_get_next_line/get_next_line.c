@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
+/*   By: lkrabbe < lkrabbe@student.42heilbronn.d    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/11 16:47:08 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/12 14:56:22 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ char *rec_str_join(int fd,char *ptr,size_t size,char *tmp_buf)
 	i = lookfor(fd, buffer,tmp_buf);
 	if (i == BUFFERSIZE)
 	{	
-		ptr = rec_str_join(fd, ptr, size + i, &(*tmp_buf));
+		ptr = rec_str_join(fd, ptr, size + i, &(tmp_buf[0]));
 		if (ptr == NULL)
 			return(NULL);
 	}
@@ -57,6 +57,7 @@ char *rec_str_join(int fd,char *ptr,size_t size,char *tmp_buf)
 			return(NULL);
 		ptr[size  + i - 1] = '\0';
 	}
+//	printf(">>%s<<",tmp_buf);
 	while ( i-- >= 0)
 		ptr[size + i] = buffer[i];
 	return (ptr);
@@ -80,25 +81,34 @@ char	*get_next_line(int fd)
 		ptr = malloc(sizeof(char) * (i + 1));
 		if (ptr == NULL)
 			return (NULL);
+		
 		while (i > k)
 		{
 			ptr[k] = sta_buf[k];
 			k++;
 		}
 		ptr[k] = '\0';
-		k = 0;
-		while (sta_buf[k+i] != '\0')
+		while (k >= 0)
 		{
 			sta_buf[k] = sta_buf[k+i];
-			k++;
+			printf("<%i>",sta_buf[k]);
+			k--;
 		}
-		sta_buf[k+i] = '\0';
 		return (ptr);
 	}
-	ptr = rec_str_join(fd, ptr, i, &(*tmp_buf));
+	printf("-->%s|",sta_buf);
+	fflush(stdout);
+	ptr = rec_str_join(fd, ptr, i, &(tmp_buf[0]));
 	while ( i--  > 0)
 		ptr[i] = sta_buf[i];
-	while (k++ <= BUFFERSIZE)
+	k = 0;
+	while (k <= BUFFERSIZE)
+	{
 		sta_buf[k] = tmp_buf[k];
+	//	printf("|%c|",sta_buf[k]);
+		k++;
+	}
+//printf("%i == >>%s<<",k,sta_buf);
+//	fflush(stdout);
 	return(ptr);
 }
