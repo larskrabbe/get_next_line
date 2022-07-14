@@ -6,7 +6,7 @@
 /*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/14 12:27:52 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/14 15:04:16 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,28 +41,29 @@ char	*rec_str_join(int fd, char *ptr, ssize_t size, char *tmp_buf)
 char	*get_next_line(int fd)
 {
 	t_variabeln		v;
-	static char		sta_buf[BUFFERSIZE];
+	static char		sta_buf[1024][BUFFERSIZE + 4];
 
 	v.ptr = NULL;
 	v.k = 0;
 	v.i = 0;
 	if (fd > 1024 || fd < 0 || BUFFERSIZE < 1)
 		return (NULL);
-	while (sta_buf[v.i] != '\0' && sta_buf[v.i] != '\n')
+	while (sta_buf[fd][v.i] != '\0' && sta_buf[fd][v.i] != '\n')
 		v.i++;
 	v.tmp = v.tmp_buf;
-	if (sta_buf[v.i] == '\n')
-		v.tmp = sta_buf + v. i + 1;
-	if (sta_buf[v.i] == '\n')
+	if (sta_buf[fd][v.i] == '\n')
+		v.tmp = sta_buf[fd] + v. i + 1;
+	if (sta_buf[fd][v.i] == '\n')
 		v.ptr = malloc(sizeof(char) * (v.i++ + 1));
 	else
 		v.ptr = rec_str_join(fd, v.ptr, v.i, v.tmp_buf);
-	while ((v.k < BUFFERSIZE || *(v.tmp + v.k) != '\0') && v.ptr != NULL)
+	while ((v.k < BUFFERSIZE /*|| *(v.tmp + v.k) != '\0'*/) && v.ptr != NULL)
 	{
 		if (v.i > v.k)
-			v.ptr[v.k] = sta_buf[v.k];
-		sta_buf[v.k] = *(v.tmp + v.k);
+			v.ptr[v.k] = sta_buf[fd][v.k];
+		sta_buf[fd][v.k] = *(v.tmp + v.k);
 		v.k++;
 	}
+	
 	return (v.ptr);
 }

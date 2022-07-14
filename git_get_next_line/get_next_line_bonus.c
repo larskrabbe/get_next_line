@@ -6,12 +6,11 @@
 /*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/14 12:23:47 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/14 15:05:08 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include	"get_next_line_bonus.h"
-
+c
 char	*rec_str_join(int fd, char *ptr, ssize_t size, char *tmp_buf)
 {
 	char		buffer[BUFFERSIZE];
@@ -64,5 +63,6 @@ char	*get_next_line(int fd)
 		sta_buf[fd][v.k] = *(v.tmp + v.k);
 		v.k++;
 	}
+	printf
 	return (v.ptr);
 }
