@@ -1,0 +1,108 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/07 19:27:23 by lkrabbe           #+#    #+#             */
+/*   Updated: 2022/07/17 18:23:33 by lkrabbe          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include	"get_next_line.h"
+
+char	*rec_str_join(int fd, char *ptr, ssize_t size, char *tmp_buf)
+{
+	char		buffer[BUFFER_SIZE + 1];
+	ssize_t		i;
+	int			k;
+
+	k = 0;
+	i = lookfor(fd, buffer, tmp_buf);
+	if (i == BUFFER_SIZE && buffer[i - 1] != '\n')
+	{	
+		ptr = rec_str_join(fd, ptr, size + i, tmp_buf);
+		if (ptr == NULL)
+			return (NULL);
+	}
+	else if ((i == 0 && size == 0) || i == -1)
+		return (NULL);
+	else
+	{
+		ptr = malloc (sizeof(char) * (size + 1 + i));
+		if (ptr == NULL)
+			return (NULL);
+		ptr[size + i] = '\0';
+	}
+	while (i-- > 0)
+		ptr[size + i] = buffer[i];
+	return (ptr);
+}
+
+char	*will_not_read(ssize_t i, char *sta_buf)
+{
+	int		k;
+	char	*ptr;
+
+	k = 0;
+	ptr = malloc(sizeof(char) * (i + 1));
+	if (ptr == NULL)
+		return (NULL);
+	while (k < i)
+	{
+		ptr[k] = sta_buf[k];
+		sta_buf[k] = sta_buf[k + i];
+		k++;
+	}
+	ptr[k] = '\0';
+	while (k <= BUFFER_SIZE && sta_buf[k + i])
+	{
+		sta_buf[k] = sta_buf[k + i];
+		k++;
+	}
+	sta_buf[k] = '\0';
+	return (ptr);
+}
+
+char	*will_read(char *sta_buf, int fd, char *tmp_buf, ssize_t i)
+{
+	int		k;
+	char	*ptr;
+
+	ptr = NULL;
+	k = 0;
+	ptr = rec_str_join(fd, ptr, i, tmp_buf);
+	if (ptr == NULL)
+		return (NULL);
+	while (sta_buf[k] != '\0')
+	{
+		ptr[k] = sta_buf[k];
+		k++;
+	}
+	k = 0;
+	while (k < BUFFER_SIZE)
+	{
+		sta_buf[k] = tmp_buf[k];
+		k++;
+	}
+	sta_buf[k] = '\0';
+	return (ptr);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	sta_buf[BUFFER_SIZE +1];
+	ssize_t		i;
+	char		tmp_buf[BUFFER_SIZE +1];
+
+	i = 0;
+	if (fd > 1024 || fd < 0 || BUFFER_SIZE < 1)
+		return (NULL);
+	while (sta_buf[i] != '\0' && sta_buf[i] != '\n')
+		i++;
+	if (sta_buf[i] == '\n')
+		return (will_not_read(i + 1, sta_buf));
+	else
+		return (will_read(sta_buf, fd, tmp_buf, i));
+}

@@ -6,7 +6,7 @@
 /*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 06:21:17 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/14 12:26:36 by lkrabbe          ###   ########.fr       */
+/*   Updated: 2022/07/17 18:21:03 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	lookfor(int fd, char *buffer, char *tmp_buf)
 
 	pos = 0;
 	tmp_buf[0] = 0;
-	len = read(fd, buffer, BUFFERSIZE);
+	len = read(fd, buffer, BUFFER_SIZE);
 	if (len == 0 || len == -1)
 		return (len);
 	i = 0;

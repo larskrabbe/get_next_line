@@ -1,37 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lkrabbe <lkrabbe@student.42heilbronn.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/05 06:21:17 by lkrabbe           #+#    #+#             */
-/*   Updated: 2022/07/14 15:38:04 by lkrabbe          ###   ########.fr       */
+/*   Created: 2022/07/05 06:21:28 by lkrabbe           #+#    #+#             */
+/*   Updated: 2022/07/17 17:34:00 by lkrabbe          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include	"get_next_line.h"
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
 
-int	lookfor(int fd, char *buffer, char *tmp_buf)
+# include	<unistd.h>
+# include	<stdlib.h>
+# include	<stdio.h>
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+# endif
+
+typedef struct s_variabeln
 {
-	ssize_t	len;
-	ssize_t	i;
-	ssize_t	pos;
+	ssize_t		i;
+	char		*ptr;
+	ssize_t		k;
+	char		*tmp;
+	char		tmp_buf[BUFFER_SIZE];
+}t_variabeln;
 
-	pos = 0;
-	len = read(fd, buffer, BUFFERSIZE);
-	if (len == 0 || len == -1)
-		return (len);
-	i = 0;
-	while (i < len && buffer[i] != '\n')
-		i++;
-	if (buffer[i] == '\n')
-		i++;
-	while (i + pos < len)
-	{
-		tmp_buf[pos] = buffer[i + pos];
-		pos++;
-	}
-		tmp_buf[pos] = '\0';
-	return (i);
-}
+int		lookfor(int fd, char *buffer, char *tmp_buf);
+char	*get_next_line(int fd);
+
+#endif
